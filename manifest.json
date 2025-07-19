@@ -1,13 +1,13 @@
 {
     "manifest_version": 1,
-    "name": "BetterListenCount", 
+    "name": "BetterListenCount",
     "version": "0.0.1",
-    "author": "aquamarine5", 
+    "author": "aquamarine5",
     "description": "BetterListenCount",
     "betterncm_version": ">=0.2.5",
     "preview": "preview.png",
     "injects": {
-        "Main": [ 
+        "Main": [
             {
                 "file": "./dist/main.js"
             }
