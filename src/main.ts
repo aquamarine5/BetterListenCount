@@ -10,11 +10,24 @@ function addStylesheet() {
     style.textContent = `#page_pc_songlist_songflow li.j-item {
     height: auto;
 }
-    
+
+.pl-di {
+    --item-height: 50px;
+}
+
+.m-plylist-pl2 ul .lst {
+    --item-height:;
+}
+
+.fixed-scroll-management {
+    --item-height:;
+}
+
 .listen-count {
     color: rgba(var(--md-accent-color-secondary-rgb), 0.8) !important;
     padding-bottom: 7px;
 }`
+
     document.head.appendChild(style);
 }
 plugin.onLoad(() => {
@@ -28,7 +41,7 @@ plugin.onLoad(() => {
     window["blc_listencount"] = function () {
         let index = 0
         document.querySelectorAll("#page_pc_songlist_songflow li.j-item:not(.blc-listen-count)").forEach((value) => {
-            if (index > 10) return;
+            if (index > 100) return;
             index++;
             const songId = value["NE_DAWN_PARAMS"].params.s_songId
             window["blc_queryRecord"](songId, (data) => {
@@ -62,24 +75,27 @@ plugin.onLoad(() => {
     }
 
     function modifyDOM(li: Element, data: any) {
+        if (!data.data || Object.keys(data.data).length === 0) return;
         const flow = li.querySelector(".flow")
         li.classList.add("blc-listen-count");
         flow.setAttribute("style", "display: flex; flex-direction: column; ")
         flow.innerHTML = `<div>${flow.innerHTML}</div><div class="listen-count"></div>`
         const listenDisplayer = flow.querySelector(".listen-count");
-        let duration = data.data.musicTotalPlayDto.duration;
+        let duration = data.data.musicTotalPlayDto.duration.toString();
         if (duration < 2) {
             const durationStr = flow.querySelector("div.s-fc4")
             const timeComponents = durationStr.textContent.split(':')
-            console.log(timeComponents);
             const minutes = parseInt(timeComponents[0]);
             const seconds = parseInt(timeComponents[1]);
             const songDurationInMinutes = minutes + seconds / 60;
             const playCount = data.data.musicTotalPlayDto.playCount;
-            duration = Math.round(songDurationInMinutes * playCount);
-
+            duration = Math.round(songDurationInMinutes * playCount).toString() + "*";
         }
-        listenDisplayer.textContent = `首次收听:${data.data.musicFirstListenDto.date}; 听歌次数：${data.data.musicTotalPlayDto.playCount}; 听歌市场：${duration}min`
-
+        let text = `首次收听:${data.data.musicFirstListenDto.date}; 听歌次数：${data.data.musicTotalPlayDto.playCount}; 听歌时长：${duration}min`
+        if (data.data.musicPlayMostDto && data.data.musicPlayMostDto.date && data.data.musicPlayMostDto.mostPlayedCount) {
+            let date = new Date(data.data.musicPlayMostDto.date);
+            text += `<br/>最多听歌天数：${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}，次数：${data.data.musicPlayMostDto.mostPlayedCount}`;
+        }
+        listenDisplayer.innerHTML = text;
     }
 })
