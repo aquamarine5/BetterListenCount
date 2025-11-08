@@ -11,16 +11,22 @@ function addStylesheet() {
     height: auto;
 }
 
-.pl-di {
-    --item-height: 50px;
+#page_pc_songlist_songflow li.j-item:before {
+    height: 50px;
+    line-height: 50px;
 }
 
-.m-plylist-pl2 ul .lst {
-    --item-height:;
+#page_pc_songlist_songflow li.j-item .ico {
+    margin-top: 15px;
 }
 
-.fixed-scroll-management {
-    --item-height:;
+#page_pc_songlist_songflow li.j-item .td{
+    height: 50px;
+    line-height: 40px;
+}
+
+#page_pc_songlist_songflow li.j-item .fmc-cover-container, #page_pc_songlist_songflow li.j-item .tit , #page_pc_songlist_songflow li.j-item div.ellipsis .s-fc3 {
+    line-height: 40px;
 }
 
 .listen-count {
@@ -46,7 +52,7 @@ plugin.onLoad(() => {
             const songId = value["NE_DAWN_PARAMS"].params.s_songId
             window["blc_queryRecord"](songId, (data) => {
                 if (data.code === 200 && data.data) {
-                    modifyDOM(value, data);
+                    value.setAttribute("style", `--item-height: ${modifyDOM(value, data)}px;`)
                 } else {
                     console.error("Failed to fetch listen count for songId:", songId, "Error code:", data.code);
                 }
@@ -74,8 +80,10 @@ plugin.onLoad(() => {
         xhr.send();
     }
 
-    function modifyDOM(li: Element, data: any) {
-        if (!data.data || Object.keys(data.data).length === 0) return;
+    function modifyDOM(li: Element, data: any): number {
+
+        let offsetHeight = 50;
+        if (!data.data || Object.keys(data.data).length === 0) return offsetHeight;
         const flow = li.querySelector(".flow")
         li.classList.add("blc-listen-count");
         flow.setAttribute("style", "display: flex; flex-direction: column; ")
@@ -92,9 +100,11 @@ plugin.onLoad(() => {
             duration = Math.round(songDurationInMinutes * playCount).toString() + "*";
         }
         let text = `首次收听:${data.data.musicFirstListenDto.date}; 听歌次数：${data.data.musicTotalPlayDto.playCount}; 听歌时长：${duration}min`
+        offsetHeight = 72;
         if (data.data.musicPlayMostDto && data.data.musicPlayMostDto.date && data.data.musicPlayMostDto.mostPlayedCount) {
             let date = new Date(data.data.musicPlayMostDto.date);
             text += `<br/>最多听歌天数：${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}，次数：${data.data.musicPlayMostDto.mostPlayedCount}`;
+            offsetHeight = 87;
         }
         listenDisplayer.innerHTML = text;
     }
